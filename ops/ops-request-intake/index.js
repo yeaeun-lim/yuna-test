@@ -273,7 +273,16 @@ async function knownFromLinear(channel, days = 14) {
   const map = new Map();
   for (const n of d.issues?.nodes || []) {
     const ts = tsFromDescription(n.description, channel);
-    if (ts) map.set(ts, n);
+    if (!ts) continue;
+    // 한 메시지에 이슈가 여럿이면(과거 중복 생성분) 취소되지 않은 것 → 번호가 빠른 것을 대표로 쓴다.
+    // 아무거나 잡으면 취소된 중복 이슈 때문에 원본 스레드에 '종료' 알림이 잘못 달린다.
+    const prev = map.get(ts);
+    if (prev) {
+      const rank = (x) => [x.state?.type === 'canceled' ? 1 : 0, Number(String(x.identifier).split('-')[1]) || 0];
+      const [a, b] = [rank(prev), rank(n)];
+      if (a[0] < b[0] || (a[0] === b[0] && a[1] <= b[1])) continue;
+    }
+    map.set(ts, n);
   }
   return map;
 }
