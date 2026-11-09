@@ -245,8 +245,18 @@ function sinceToTs(s) {
 
 /** 이슈 본문에서 Slack 메시지 ts를 뽑는다. .../archives/C123/p1788761486073129 → '1788761486.073129' */
 function tsFromDescription(desc, channel) {
-  const m = new RegExp(`archives/${channel}/p(\\d{10})(\\d{6})`).exec(desc || '');
-  return m ? `${m[1]}.${m[2]}` : null;
+  // ⚠️ 요청 본문에 같은 채널의 과거 스레드 링크가 들어오면 첫 매치가 그 링크가 된다.
+  //    (OPS-407~411: 본문 참고링크 때문에 원본 ts를 못 찾아 루프마다 중복 생성)
+  //    → 접수봇이 맨 끝에 붙이는 '원본 스레드' 링크를 우선, 없으면 마지막 매치를 쓴다.
+  const text = desc || '';
+  const re = new RegExp(`archives/${channel}/p(\\d{10})(\\d{6})`, 'g');
+  const tail = text.lastIndexOf('Slack 원본 스레드');
+  let pick = null;
+  for (const m of text.matchAll(re)) {
+    if (tail >= 0 && m.index > tail) return `${m[1]}.${m[2]}`;
+    pick = m;
+  }
+  return pick ? `${pick[1]}.${pick[2]}` : null;
 }
 
 /** 최근 N일 내 생성된 OPS 업무요청 이슈를 ts → 이슈 맵으로 */
