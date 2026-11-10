@@ -59,6 +59,7 @@ const SERVICE = [
   [/성장 ?금융|대출|여신실행/, '성장금융'],
   [/지출 ?관리|경비|영수증|ERP/, '지출관리'],
   [/고객 ?문의|CS|VOC/, '고객문의'],
+  [/페이 ?바이 ?카드|pay ?by ?card|해외송금/i, '페이바이카드'], // '카드' 글자가 들어 있어 카드보다 먼저
   [/카드/, '카드'],
 ];
 
@@ -85,6 +86,7 @@ const PEOPLE = {
   김민지: { slack: 'U0831PJ9KE0', linear: '24b118ee-db73-44f2-b8ad-3659ddb9f453' },
   장혜원: { slack: 'U0B5MLD4SA0', linear: 'ae37bf75-25f8-4592-9c60-477bb52a489f' },
   황민영: { slack: 'U08BHAKLGP3', linear: '3da92996-a29d-477e-894c-0338051be77f' },
+  김윤지: { slack: 'U08GJETDUKF', linear: '75a301cb-f77b-4878-ac6a-1341a068cff2' },
   김민우: { slack: 'U0B3WJ2N71T', linear: 'a8364964-b756-4184-9786-2dbfa18f8a82' },
   오유나: { slack: 'U09J53NDGV9', linear: '3c20eb70-9bf6-45fa-9fdf-b6d3ce2678a6' },
 };
@@ -95,6 +97,7 @@ const PEOPLE = {
 //   서비스 칸에 들어와도 규칙이 잡아야 하기 때문
 const ROUTES = [
   { name: '성장금융',        when: (c) => c.service === '성장금융',                    who: ['황민영'] },
+  { name: '페이바이카드',    when: (c) => c.service === '페이바이카드',                who: ['김윤지'] },
   { name: 'BD 아젠다',       when: (c) => /BD ?아젠다|BD ?agenda/i.test(`${c.serviceRaw} ${c.type} ${c.domain}`), who: ['김민우', '오유나'] },
   { name: '고객문의',        when: (c) => c.service === '고객문의',                    who: ['장혜원'] },
   { name: '지출관리',        when: (c) => c.service === '지출관리',                    who: ['장혜원'] },
